@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Simulator</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dark-mode">
+    <div class="ticker-tape">
+        <div class="ticker-content" id="ticker-content">
+            <!-- Ticker items will be populated by JS -->
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <i class="fas fa-chart-line"></i> Stock Market Simulator
+        </div>
+        <div class="portfolio-summary" id="portfolio-summary">
+            <div class="summary-item">
+                <span class="label">Total Equity</span>
+                <span class="value" id="total-equity">00,000.00</span>
+            </div>
+            <div class="summary-item">
+                <span class="label">Buying Power</span>
+                <span class="value" id="buying-power">00,000.00</span>
+            </div>
+            <div class="summary-item">
+                <span class="label">Day P/L</span>
+                <span class="value positive" id="day-pl">+-bash.00 (0.00%)</span>
+            </div>
+        </div>
+        <div class="theme-toggle">
+            <button id="theme-btn"><i class="fas fa-moon"></i></button>
+        </div>
+    </header>
+
+    <main class="grid-container">
+        <!-- Asset List Panel -->
+        <section class="asset-panel">
+            <div class="panel-header">
+                <h2>Market</h2>
+                <input type="text" id="search-input" placeholder="Search assets...">
+            </div>
+            <div class="asset-list-container">
+                <table id="asset-table">
+                    <thead>
+                        <tr>
+                            <th data-sort="symbol">Symbol <i class="fas fa-sort"></i></th>
+                            <th data-sort="price">Price <i class="fas fa-sort"></i></th>
+                            <th data-sort="change">24h % <i class="fas fa-sort"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody id="asset-list-body">
+                        <!-- Assets populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Chart Panel -->
+        <section class="chart-panel">
+            <div class="chart-header">
+                <h2 id="chart-title">Select an Asset</h2>
+                <div class="chart-controls">
+                    <button class="timeframe-btn active" data-timeframe="1m">1m</button>
+                    <button class="timeframe-btn" data-timeframe="5m">5m</button>
+                    <button class="timeframe-btn" data-timeframe="15m">15m</button>
+                </div>
+            </div>
+            <div class="chart-container" id="chart-container">
+                <canvas id="market-chart"></canvas>
+            </div>
+        </section>
+
+        <!-- Order Panel -->
+        <section class="order-panel">
+            <div class="panel-header">
+                <h2>Trade <span id="trade-symbol">Select Asset</span></h2>
+            </div>
+            <form id="order-form">
+                <div class="form-group">
+                    <label>Order Type</label>
+                    <select id="order-type">
+                        <option value="MARKET">Market</option>
+                        <option value="LIMIT">Limit</option>
+                        <option value="STOP_LOSS">Stop Loss</option>
+                        <option value="TAKE_PROFIT">Take Profit</option>
+                        <option value="TRAILING_STOP">Trailing Stop</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="price-input-group" style="display: none;">
+                    <label>Trigger Price ($)</label>
+                    <input type="number" id="order-price" step="0.01" min="0">
+                </div>
+
+                <div class="form-group" id="trailing-input-group" style="display: none;">
+                    <label>Trailing %</label>
+                    <input type="number" id="trailing-percent" step="0.1" min="0.1" max="100">
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" id="order-quantity" step="any" min="0">
+                </div>
+
+                <div class="order-preview">
+                    <div class="preview-row">
+                        <span>Cost:</span>
+                        <span id="order-cost">-bash.00</span>
+                    </div>
+                </div>
+
+                <div class="order-actions">
+                    <button type="button" id="buy-btn" class="buy-btn">BUY / LONG</button>
+                    <button type="button" id="sell-btn" class="sell-btn">SELL / SHORT</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Positions & Orders Panel -->
+        <section class="positions-panel">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="positions">Positions</button>
+                <button class="tab-btn" data-tab="orders">Open Orders</button>
+                <button class="tab-btn" data-tab="history">History</button>
+            </div>
+            <div class="tab-content active" id="positions-tab">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Qty</th>
+                            <th>Avg Price</th>
+                            <th>Current</th>
+                            <th>P/L ($)</th>
+                            <th>P/L (%)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="positions-body">
+                        <!-- Positions populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-content" id="orders-tab" style="display: none;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Symbol</th>
+                            <th>Qty</th>
+                            <th>Price/Trigger</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-body">
+                        <!-- Orders populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-content" id="history-tab" style="display: none;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Symbol</th>
+                            <th>Type</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>P/L</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                         <!-- History populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/market.js"></script>
+    <script src="js/portfolio.js"></script>
+    <script src="js/orderEngine.js"></script>
+    <script src="js/chart.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/persistence.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
